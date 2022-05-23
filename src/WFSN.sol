@@ -31,8 +31,8 @@ contract WFSN is FRC759, IWFSN {
     function transferFrom(address from, address to, uint256 amount) public override(FRC759, IWFSN) returns (bool) {
         uint256 _allowance = ISlice(fullTimeToken).allowance(from, msg.sender);
 
-        if (to == address(0) || from == address(this)) {
-            if (amount < _allowance) revert InsufficientAllowance();
+        if (to == address(0) || to == address(this)) {
+            if (amount > _allowance) revert InsufficientAllowance();
             _withdraw(from, amount);
         } else {
             ISlice(fullTimeToken).transferByParent(from, to, amount);

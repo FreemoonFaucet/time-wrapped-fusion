@@ -6,14 +6,14 @@
 
 ### Deposit
 
-There are multiple ways to deposit FSN and receive wrapped tokens.
+There are multiple ways to deposit FSN and receive wrapped tokens:
 
 1. Call ```deposit()```
 2. Transfer FSN to this contract
 
 ### Withdraw
 
-There are multiple ways to withdraw wrapped tokens and receive FSN.
+There are also multiple ways to send wrapped tokens and withdraw FSN:
 
 1. Call ```withdraw(amount)```
 2. Transfer wrapped tokens to the contract address ```transfer(contract, amount)```
