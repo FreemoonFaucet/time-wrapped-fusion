@@ -1,6 +1,6 @@
 # Time Wrapped FSN
 
-## :candy: Basic Wrapped FSN built on the FRC759 standard
+## :candy: Basic wrapped FSN built on the FRC759 standard
 
 ### Deposit
 
