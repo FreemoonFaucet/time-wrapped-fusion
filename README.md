@@ -2,6 +2,8 @@
 
 ## :candy: Basic wrapped FSN built on the FRC759 standard
 
+[Original FRC759 Implementation](https://github.com/FUSIONFoundation/FRC759)
+
 ### Deposit
 
 There are multiple ways to deposit FSN and receive wrapped tokens.
