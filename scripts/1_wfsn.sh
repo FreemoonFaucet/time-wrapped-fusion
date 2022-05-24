@@ -1,4 +1,5 @@
 #! /bin/bash
+
 forge create \
 src/WFSN.sol:WFSN \
 --rpc-url $RPCURL \
