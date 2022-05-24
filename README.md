@@ -22,4 +22,4 @@ There are also multiple ways to send wrapped tokens and withdraw FSN:
 
 | :warning: **Warning** |
 | :--- |
-| When converting **wrapped tokens/FSN**, only use **whole** tokens and **whole** FSN. |
+| When converting **wrapped tokens** or **FSN**, only use **whole** tokens and **whole** FSN. |
