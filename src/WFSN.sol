@@ -13,15 +13,11 @@ contract WFSN is FRC759, IWFSN {
     constructor() FRC759("Wrapped Fusion", "WFSN", 18, type(uint256).max) {}
 
     receive() external payable {
-        _mint(msg.sender, msg.value);
-
-        emit Deposit(msg.sender, msg.value);
+        _deposit(msg.sender, msg.value);
     }
 
     function deposit() external override payable {
-        _mint(msg.sender, msg.value);
-
-        emit Deposit(msg.sender, msg.value);
+        _deposit(msg.sender, msg.value);
     }
 
     function withdraw(uint256 amount) external override {
@@ -89,6 +85,12 @@ contract WFSN is FRC759, IWFSN {
     }
 
     // **** PRIVATE ****
+    function _deposit(address account, uint256 amount) private {
+        _mint(account, amount);
+
+        emit Deposit(account, amount);
+    }
+
     function _withdraw(address account, uint256 amount) private {
         _burn(account, amount);
         _safeTransferETH(account, amount);
