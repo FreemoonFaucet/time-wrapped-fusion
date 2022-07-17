@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
 import "freemoon-frc759/FRC759.sol";
@@ -33,7 +33,7 @@ contract WFSN is FRC759, IWFSN {
         } else {
             ISlice(fullTimeToken).transferByParent(from, to, amount);
         }
-        
+ 
         ISlice(fullTimeToken).approveByParent(from, msg.sender, _allowance.sub(amount, "FRC759: too less allowance"));
 
         return true;
@@ -48,14 +48,14 @@ contract WFSN is FRC759, IWFSN {
         } else {
             ISlice(fullTimeToken).transferByParent(from, to, amount);
         }
-        
+ 
         ISlice(fullTimeToken).approveByParent(from, msg.sender, _allowance.sub(amount, "FRC759: too less allowance"));
 
         emit DataDelivery(data);
 
         return true;
     }
-    
+ 
     function transfer(address to, uint256 amount) public override(FRC759, IWFSN) returns (bool) {
         if (to == address(0) || to == address(this)) {
             _withdraw(msg.sender, amount);
@@ -82,6 +82,12 @@ contract WFSN is FRC759, IWFSN {
         if (msg.sender != account) revert Forbidden();
 
         _withdraw(account, amount);
+    }
+
+    function burnSlice(address account, uint256 amount, uint256 start, uint256 end) public {
+      if (msg.sender != account) revert Forbidden();
+
+      _burnSlice(account, amount, start, end);
     }
 
     // **** PRIVATE ****
