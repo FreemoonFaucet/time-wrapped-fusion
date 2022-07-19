@@ -2,10 +2,8 @@
 pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
-import "freemoon-frc759/interfaces/ISlice.sol";
 
 import "src/WFSN.sol";
-import "src/interfaces/IWFSN.sol";
 
 
 contract TestUser {
