@@ -48,11 +48,12 @@ contract TestWFSN is Test {
     TestUser testUserA;
     TestUser testUserB;
     TestUser testUserC;
+    address terms = 0xABCDabcdABcDabcDaBCDAbcdABcdAbCdABcDABCd;
 
 
     // **** SET UP ****
     function setUp() public {
-        wfsn = new WFSN();
+        wfsn = new WFSN(msg.sender, terms);
         testUserA = new TestUser();
         testUserB = new TestUser();
         testUserC = new TestUser();

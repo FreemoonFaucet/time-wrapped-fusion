@@ -409,13 +409,29 @@ contract FRC759 is Context, IFRC759 {
 }
 
 
+interface ITerms {
+    enum TermEnd {
+        Short,
+        Medium,
+        Long
+    }
+
+    function getTerm(TermEnd termEnd) external view returns (uint256);
+}
+
+
 interface IWFSN {
     error InsufficientAllowance();
     error Forbidden();
+    error Expired();
     error TransferETHFailed();
 
     event Deposit(address indexed from, uint256 amount);
     event Withdrawal(address indexed to, uint256 amount);
+
+    event Loan(address indexed account, uint256 amount, uint256 termEnd);
+    event Borrowing(uint256 amount, uint256 termEnd);
+    event Repayment(uint256 amount, uint256 termEnd);
 
     function deposit() external payable;
     function withdraw(uint256 amount) external;
@@ -426,13 +442,27 @@ interface IWFSN {
     function transferData(address to, uint256 amount, bytes calldata data) external returns (bool);
 
     function burn(address account, uint256 amount) external;
+    function burnSlice(address account, uint256 amount, uint256 start, uint256 end) external;
+
+    function loan(uint256 amount, ITerms.TermEnd termEnd) external;
+    function borrow(uint256 amount, ITerms.TermEnd termEnd) external;
+    function repay(ITerms.TermEnd termEnd) external payable;
 }
 
 
 contract WFSN is FRC759, IWFSN {
     using SafeMath for uint256;
 
-    constructor() FRC759("Wrapped Fusion", "WFSN", 18, type(uint256).max) {}
+    address public admin;
+    address public terms;
+
+    mapping(uint256 => uint256) public loaned;
+    mapping(uint256 => uint256) public borrowed;
+
+    constructor(address admin_, address terms_) FRC759("Wrapped Fusion", "WFSN", 18, type(uint256).max) {
+        admin = admin_;
+        terms = terms_;
+    }
 
     receive() external payable {
         _deposit(msg.sender, msg.value);
@@ -500,16 +530,48 @@ contract WFSN is FRC759, IWFSN {
         return true;
     }
 
-    function burn(address account, uint256 amount) public {
+    function burn(address account, uint256 amount) external {
         if (msg.sender != account) revert Forbidden();
 
         _withdraw(account, amount);
     }
 
-    function burnSlice(address account, uint256 amount, uint256 start, uint256 end) public {
-      if (msg.sender != account) revert Forbidden();
+    function burnSlice(address account, uint256 amount, uint256 start, uint256 end) external {
+        if (msg.sender != account) revert Forbidden();
 
-      _burnSlice(account, amount, start, end);
+        _burnSlice(account, amount, start, end);
+    }
+
+    function loan(uint256 amount, ITerms.TermEnd termEnd) external {
+        uint256 termTs = ITerms(terms).getTerm(termEnd);
+        loaned[termTs] += amount;
+        _burnSlice(msg.sender, amount, MIN_TIME, termTs);
+
+        emit Loan(msg.sender, amount, termTs);
+    }
+
+    function borrow(uint256 amount, ITerms.TermEnd termEnd) external {
+        if (msg.sender != admin) revert Forbidden();
+        uint256 termTs = ITerms(terms).getTerm(termEnd);
+        if (block.timestamp >= termTs) revert Expired();
+        loaned[termTs] -= amount;
+        borrowed[termTs] += amount;
+        _safeTransferETH(admin, amount);
+
+        emit Borrowing(amount, termTs);
+    }
+
+    function repay(ITerms.TermEnd termEnd) external payable {
+        if (msg.sender != admin) revert Forbidden();
+        uint256 termTs = ITerms(terms).getTerm(termEnd);
+        loaned[termTs] += msg.value;
+        borrowed[termTs] -= msg.value;
+
+        emit Repayment(msg.value, termTs);
+    }
+
+    function collateralRatio() external view returns (uint256) {
+        return address(this).balance * 100 / totalSupply;
     }
 
     // **** PRIVATE ****
