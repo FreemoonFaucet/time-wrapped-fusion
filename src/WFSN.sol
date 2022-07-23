@@ -570,6 +570,11 @@ contract WFSN is FRC759, IWFSN {
         emit Repayment(msg.value, termTs);
     }
 
+    function setAdmin(address admin_) external {
+        if (msg.sender != admin) revert Forbidden();
+        admin = admin_;
+    }
+
     function collateralRatio() external view returns (uint256) {
         return address(this).balance * 100 / totalSupply;
     }
