@@ -6,31 +6,6 @@ import "forge-std/Test.sol";
 import "src/WFSN.sol";
 
 
-contract Terms {
-    error Forbidden();
-
-    enum TermEnd {
-        Short,
-        Medium,
-        Long
-    }
-
-    mapping(TermEnd => uint256) public terms;
-
-    address public admin;
-
-    constructor(address admin_) {
-        admin = admin_;
-    }
-
-    function setNewTerm(uint256 newTerm) public {
-        if (msg.sender != admin) revert Forbidden();
-        terms[TermEnd.Short] = terms[TermEnd.Medium];
-        terms[TermEnd.Medium] = terms[TermEnd.Long];
-        terms[TermEnd.Long] = newTerm;
-    }
-}
-
 contract TestUser {
     function deposit(address wfsn, uint256 amount) external {
         IWFSN(wfsn).deposit{value: amount}();
@@ -65,13 +40,10 @@ contract TestUser {
         return success;
     }
 
-    function loan(address wfsn, )
-
     receive() external payable {}
 }
 
 contract TestWFSN is Test {
-    Terms terms;
     WFSN wfsn;
     TestUser testUserA;
     TestUser testUserB;
@@ -81,7 +53,6 @@ contract TestWFSN is Test {
 
     // **** SET UP ****
     function setUp() public {
-        terms = new Terms(address(this));
         wfsn = new WFSN(msg.sender, terms);
         testUserA = new TestUser();
         testUserB = new TestUser();
@@ -90,8 +61,6 @@ contract TestWFSN is Test {
         payable(address(testUserA)).transfer(100 ether);
         payable(address(testUserB)).transfer(100 ether);
         payable(address(testUserC)).transfer(100 ether);
-
-        terms.setNewTerm()
     }
 
     function assertSupply(uint256 expected) public {
@@ -277,9 +246,5 @@ contract TestWFSN is Test {
         vm.expectRevert("FRC759: too less allowance");
 
         testUserB.transferFromData(address(wfsn), address(testUserA), address(testUserC), 100 ether, data);
-    }
-
-    function testLoanFSN() public {
-        testUserA.deposit(address(wfsn), 50 ether);
     }
 }
